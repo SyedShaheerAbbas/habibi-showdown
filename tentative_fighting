@@ -1,4 +1,5 @@
 
+
 `timescale 1ns / 1ps
 
 module fighting(
@@ -15,9 +16,7 @@ input [1:0] cstate,
             output h_sync,
             output v_sync,
             output reg [11:0]rgb,
-            output reg [11:0]test,
-            output reg endflag1=0,
-            output reg endflag2=0);
+            output reg [11:0]test);
   wire video_on;
 
             wire [9:0] hpos;
@@ -25,15 +24,6 @@ input [1:0] cstate,
     reg endflag;
       gen_sync sync(.clk(clk),.h_sync(h_sync),.v_sync(v_sync), .video_on(video_on), .x_loc(hpos), .y_loc(vpos));
       //HEALTH
-      wire kingStillInvincible, leeStillInvincible;
-
-	triggeredCounter  kingInvincibility(.trig(triggerKingInvincible),.clk(clk),.in_progress(kingStillInvincible));
-	triggeredCounter  leeInvincibility(.trig(triggerLeeInvincible),.clk(clk),.in_progress(leeStillInvincible));
-
-	wire in_range;
-	
-	assign lee_in_range_of_king = (kingx - leex <= 146 && kingx - leex >= 0) && (kingy - leey <= 140 && kingy - leey >= 0);
-	assign king_in_range_of_lee = (leex - kingx <= 158 && leex - kingx >= 0) && (leey - kingy <= 104 && leey - kingy >= 0);
   wire kinghit,leehit;
   reg leekicked,kingkicked;
   reg kinghitflag = 0;
@@ -98,7 +88,10 @@ wire leeKickedLong;
  wire ready;
  wire [15:0] data;  
  reg [6:0] Address_in;    
- 
+ reg [24:0] cooldown1 = 0;
+ reg [24:0] cooldown2 = 0;
+  reg [24:0] cooldown3 = 0;
+   reg [24:0] cooldown4 = 0;
 
 
  xadc_wiz_0  XLXI_7 (.daddr_in(Address_in), //addresses can be found in the artix 7 XADC user guide DRP register space
@@ -126,29 +119,42 @@ wire leeKickedLong;
    
  
       reg [1:0]flip=0;
-     
+    reg [3:0] last_kingx;
+	reg [3:0] last_kingy;
+	reg [3:0] last_leex;
+	reg [3:0] last_leey;  
 
     always @(negedge v_sync) begin
-        if (lee_in_range_of_king) begin
-			if (kingkicked && ~leeStillInvincible && p2health >0) begin
-				p2health = p2health - 11'd10;
-				p2healthxpos = p2healthxpos + 11'd10;
-				triggerLeeInvincible = 1;
-			end
-		end else begin
-			triggerLeeInvincible = 0;
-	end
-
-		if (king_in_range_of_lee) begin
-			if (leekicked && ~kingStillInvincible && p1health >0) begin
-				p1health = p1health - 11'd10;
-				triggerKingInvincible = 1;
-			end
-		end else begin
-			triggerKingInvincible = 0;
-	end
+        if (cstate==1) begin
+         c1=c1+1;
+         c2=c2+1;
+        if ((kinghit==1)&&(p1health > 0)&&((p1health!=300)||(p1health!=200)||(p1health!=100))) begin
+                              p1health <= p1health - 11'd90;
+                              c1=0;
+                        end else if (p1health <= 0) begin
+                              endflag <= 1;
+            end
+        if ((leehit==1)&&(p2health > 0 && p2healthxpos < 639)&&((p2health!=300)||(p2health!=200)||(p2health!=100))) begin
+                              p2health <= p2health - 11'd90;
+                              p2healthxpos <= p2healthxpos + 11'd90;
+                              c2=0;
+                        end else if (p2health <= 0 || p2healthxpos >= 639) begin
+                              endflag <= 1;
+            end
+        if ((c1==1000) && ((p1health==300)||(p1health==200)||(p1health==100))) begin
+            p1health <= p1health - 11'd10;
+            c1=0;
+            end
+        if ((c2==1000 && p2healthxpos < 639) && ((p2health==300)||(p2health==200)||(p2health==100))) begin
+            p2health <= p2health - 11'd10;
+            p2healthxpos <= p2healthxpos + 11'd10;
+            c2=0;
+            end
             flip = flip + 1;
            
+	
+
+
     case (flip)
     0: begin
             Address_in = 8'h16;
@@ -159,17 +165,43 @@ wire leeKickedLong;
             case (data[15:12])
            
                   0 : begin
-                      if ((kingx-1<640)&&(kingx-1>0))
-                        kingx=kingx-10;
+
+			if (cooldown1 == 0) begin
+					if (last_kingx != 0) begin
+							last_kingx <= 0;
+							cooldown1 <= 4000000;
+					end else if ((kingx-1<640)&&(kingx-1>0)) begin
+						kingx=kingx-10;
+				end
+			end else begin
+					cooldown1 <= cooldown1 - 1;
+			end
                   end
 
                     14 : begin
-                  if ((kingx+1+200<640)&&(kingx+1>0))
-                        kingx =kingx+10;
+			if (cooldown1 == 0) begin
+					if ((last_kingx != 14 )||(last_kingx!= 15)) begin
+							last_kingx <= 15;
+							cooldown1 <= 4000000;
+					end else if ((kingx+1+200<640)&&(kingx+1>0)) begin
+				kingx =kingx+10;
+				end
+			end else begin
+					cooldown1 <= cooldown1 - 1;
+			end
                   end
+                  
                   15 : begin
-                  if ((kingx+1+200<640)&&(kingx+1>0))
-                        kingx =kingx+10;
+			if (cooldown1 == 0) begin
+					if ((last_kingx != 14 )||(last_kingx!= 15)) begin
+							last_kingx <= 15;
+							cooldown1 <= 4000000;
+					end else if ((kingx+1+200<640)&&(kingx+1>0)) begin
+				kingx =kingx+10;
+				end
+			end else begin
+					cooldown1 <= cooldown1 - 1;
+			end
                   end
 
             endcase
@@ -182,27 +214,59 @@ wire leeKickedLong;
       case (data[15:12])
      
             0 : begin
-                  kingkicked = 1; //1
-            end
-
-              14 : begin
-            if ((kingy-1>0)&&(kingy-1<480))
-                  kingy=kingy-10;
+                if (cooldown2==0) begin
+                    if (last_kingy!=0) begin
+                        last_kingy<=0;
+                        cooldown2<=4000000;
+                    end else 
+                        kingkicked = 1; //1
+                    end
+                else 
+                    cooldown2<=cooldown2-1;
             end
             15 : begin
-            if ((kingy-1>0)&&(kingy-1<480))
-                  kingy=kingy-10;
-            end
+                  if (cooldown2==0) begin
+                    if ((last_kingy!=14)||(last_kingy!=15)) begin
+                        last_kingy<=15;
+                        cooldown2<=4000000;
+                        end
+                    else if ((kingy-1>0)&&(kingy-1<480)) begin
+                        kingy <=kingy -10;
+                        end
+                    end
+                else 
+                    cooldown2<=cooldown2-1;
+                end
+            15 : begin
+                  if (cooldown2==0) begin
+                    if ((last_kingy!=14)||(last_kingy!=15)) begin
+                        last_kingy<=15;
+                        cooldown2<=4000000;
+                        end
+                    else if ((kingy-1>0)&&(kingy-1<480)) begin
+                        kingy <=kingy -10;
+                        end
+                    end
+                else 
+                    cooldown2<=cooldown2-1;
+                end
 
-                                    default : begin
-                                    kingkicked=0;
-                                         if (kingy + 1 +200> 0 && kingy + 1 +200< 480)
-                                                kingy = kingy + 10;
-                                               
-                                               
-                                         
-                                               
-                                    end
+            default : begin
+                if (cooldown2==0) begin
+                   if ((last_kingy>0)&&(last_kingy<14)) begin
+                       kingkicked=0;
+                       if (kingy + 1+200 > 0 && kingy + 1 +200< 480) begin
+                          kingy = kingy + 10;
+                          end
+                       end
+                   else begin
+                       last_kingy<=7;
+                       cooldown2<=4000000;
+                       end
+                   end
+                else 
+                    cooldown2<=cooldown2-1;
+                end
       endcase
       end
 
@@ -213,16 +277,44 @@ wire leeKickedLong;
       case (data[15:12])
      
             0 : begin
-            if ((leex-1>0)&&(leex-1<640))
-                  leex = leex-10;
+                if (cooldown3==0) begin
+                    if ((last_leex!=14)||(last_leex!=15)) begin
+                        last_leex<=15;
+                        cooldown3 <= 4000000;
+                    end
+                    else if ((leex-1>0)&&(leex-1<640)) begin
+                      leex = leex-10;
+                    end
+                end
+                else begin
+                    cooldown3<=cooldown3-1;
+                end
             end
             14 : begin
-            if ((leex+1>0)&&(leex+1+200<640))
-                  leex=leex+10;
+                if (cooldown3==0) begin
+                    if ((last_leex != 14 )||(last_leex!= 15)) begin
+						last_leex <= 15;
+						cooldown3 <= 4000000;
+					end 
+                else if ((leex+1>0)&&(leex+1+200<640))
+                    leex=leex+10;
+                end
+                else begin
+                    cooldown3<=cooldown3-1;
+                end
             end
             15 : begin
-            if ((leex+1>0)&&(leex+1+200<640))
+            if (cooldown3==0) begin
+                    if ((last_leex != 14 )||(last_leex!= 15)) begin
+														last_leex <= 15;
+														cooldown3 <= 4000000;
+														end 
+            else if ((leex+1>0)&&(leex+1+200<640))
                   leex=leex+10;
+            end
+            else begin
+                    cooldown3<=cooldown3-1;
+                end
             end
 
       endcase
@@ -235,28 +327,65 @@ wire leeKickedLong;
       case (data[15:12])
      
             0 : begin
-                  leekicked = 1; //1
+                if (cooldown4==0) begin
+                    if (last_leey!=0) begin
+                        last_leey<=0;
+                        cooldown4<=4000000;
+                    end else 
+                        leekicked = 1; //1
+                    end
+                else 
+                    cooldown4<=cooldown4-1;
             end
             14 : begin
-                  if ((leey-1>0)&&(leey-1<480))
-                  leey =leey -10;
-                  end
+                if (cooldown4==0) begin
+                    if ((last_leey!=14)||(last_leey!=15)) begin
+                        last_leey<=15;
+                        cooldown4<=4000000;
+                        end
+                    else if ((leey-1>0)&&(leey-1<480)) begin
+                        leey <=leey -10;
+                        end
+                    end
+                else 
+                    cooldown4<=cooldown4-1;
+                end
             15 : begin
-                  if ((leey-1>0)&&(leey-1<480))
-                  leey =leey -10;
-            end
+                  if (cooldown4==0) begin
+                    if ((last_leey!=14)||(last_leey!=15)) begin
+                        last_leey<=15;
+                        cooldown4<=4000000;
+                        end
+                    else if ((leey-1>0)&&(leey-1<480)) begin
+                        leey <=leey -10;
+                        end
+                    end
+                else 
+                    cooldown4<=cooldown4-1;
+                end
 
-                                    default : begin
-                                    leekicked=0;
-                                          if (leey + 1+200 > 0 && leey + 1 +200< 480) begin
-                                                leey = leey + 10;
-                                               
-                                                end
-    end
+            default : begin
+                if (cooldown4==0) begin
+                   if ((last_leey>0)&&(last_leey<14)) begin
+                       leekicked=0;
+                       if (leey + 1+200 > 0 && leey + 1 +200< 480) begin
+                          leey = leey + 10;
+                          end
+                       end
+                   else begin
+                       last_leey<=7;
+                       cooldown4<=4000000;
+                       end
+                   end
+                else 
+                    cooldown4<=cooldown4-1;
+                end
+            
       endcase
       end
   endcase
  end
+  end
 
 
       //PLAYERS DRAW              
@@ -329,13 +458,9 @@ wire leeKickedLong;
                         rgb<=startgfx;
                     end 
                     else if (cstate==2) begin
-                        endflag1<=0;
-                        endflag2<=0;
                         rgb<=12'b000011110000;
                     end
                     else if (cstate==3) begin
-                        endflag1<=0;
-                        endflag2<=0;
                         rgb<=12'b000000001111;
                     end
                 end //cstate!=1 ends here
@@ -363,3 +488,4 @@ wire leeKickedLong;
      end //entire always block ends here
      
 endmodule
+
