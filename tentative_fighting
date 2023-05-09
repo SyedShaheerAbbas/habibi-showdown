@@ -1,0 +1,365 @@
+
+`timescale 1ns / 1ps
+
+module fighting(
+input [1:0] cstate,
+            input clk,
+            input vauxp6,
+        input vauxn6,
+        input vauxp7,
+        input vauxn7,
+    input vauxp15,
+    input vauxn15,
+    input vauxp14,
+    input vauxn14,
+            output h_sync,
+            output v_sync,
+            output reg [11:0]rgb,
+            output reg [11:0]test,
+            output reg endflag1=0,
+            output reg endflag2=0);
+  wire video_on;
+
+            wire [9:0] hpos;
+            wire [9:0] vpos;                                                                   
+    reg endflag;
+      gen_sync sync(.clk(clk),.h_sync(h_sync),.v_sync(v_sync), .video_on(video_on), .x_loc(hpos), .y_loc(vpos));
+      //HEALTH
+      wire kingStillInvincible, leeStillInvincible;
+
+	triggeredCounter  kingInvincibility(.trig(triggerKingInvincible),.clk(clk),.in_progress(kingStillInvincible));
+	triggeredCounter  leeInvincibility(.trig(triggerLeeInvincible),.clk(clk),.in_progress(leeStillInvincible));
+
+	wire in_range;
+	
+	assign lee_in_range_of_king = (kingx - leex <= 146 && kingx - leex >= 0) && (kingy - leey <= 140 && kingy - leey >= 0);
+	assign king_in_range_of_lee = (leex - kingx <= 158 && leex - kingx >= 0) && (leey - kingy <= 104 && leey - kingy >= 0);
+  wire kinghit,leehit;
+  reg leekicked,kingkicked;
+  reg kinghitflag = 0;
+      reg leehitflag = 0;
+  reg signed [10:0] kingx = 11'd100;
+  reg signed [10:0] kingy = 11'd100;
+
+  reg signed [10:0] leex = 11'd400;
+  reg signed [10:0] leey = 11'd100;
+     
+
+      reg triggerKingInvincible = 0;
+      reg triggerLeeInvincible = 0;
+
+      wire signed [10:0]dx1,dy1;
+      wire signed [10:0]dx2,dy2;
+     
+      wire kinghit,leehit;
+
+      wire kingkicked ,leekicked;
+
+      reg signed [10:0] p1health = 11'd300,p2health = 11'd300;
+      reg signed [10:0]p1healthxpos = 0,p1healthypos=0,p2healthxpos=11'd339,p2healthypos=0;
+      wire p1healthgfx,p2healthgfx;
+      wire [9:0] healthheight = 40;
+
+      wire [11:0] startgfx;
+      
+      drawbox p1healthbar(.xpos(p1healthxpos),.ypos(p1healthypos),.hpos(hpos),.vpos(vpos),.width(p1health[9:0]),.height(healthheight),.gfx(p1healthgfx));
+      drawbox p2healthbar(.xpos(p2healthxpos),.ypos(p2healthypos),.hpos(hpos),.vpos(vpos),.width(p2health[9:0]),.height(healthheight),.gfx(p2healthgfx));
+
+      start_screen starting(hpos,vpos,video_on,startgfx);
+
+      //INVINCIBILITY
+      wire kingInvincible;
+      wire leeInvincible;
+
+    reg [10:0] c1=0;
+    reg [10:0] c2=0;
+
+   
+      //Do the same thing for "kingDoKick = (~kingCanKick) && availkingkick && kingkicked", in the mvmt module set a flag to do jump don't actually
+      //In order to do this we use defparam (ideally)
+ 
+
+      //MOVEMENT  
+      //
+      //
+     
+
+  assign kinghit = leekicked && availleekick && kinggfx;
+  assign leehit =  kingkicked && availkingkick && leegfx;
+ 
+ 
+ reg kingKickedTrigger = 0;
+ reg leeKickedTrigger = 0;
+ 
+wire kingKickedLong;
+wire leeKickedLong;
+
+ wire enable;  
+ wire ready;
+ wire [15:0] data;  
+ reg [6:0] Address_in;    
+ 
+
+
+ xadc_wiz_0  XLXI_7 (.daddr_in(Address_in), //addresses can be found in the artix 7 XADC user guide DRP register space
+   .dclk_in(clk),
+   .den_in(enable),
+   .di_in(),
+   .dwe_in(),
+   .busy_out(),                    
+   .vauxp6(vauxp6),
+   .vauxn6(vauxn6),
+   .vauxp7(vauxp7),
+   .vauxn7(vauxn7),
+   .vauxp14(vauxp14),
+   .vauxn14(vauxn14),
+   .vauxp15(vauxp15),
+   .vauxn15(vauxn15),
+   .vn_in(),
+   .vp_in(),
+   .alarm_out(),
+   .do_out(data),
+   //.reset_in(),
+   .eoc_out(enable),
+   .channel_out(),
+   .drdy_out(ready));
+   
+ 
+      reg [1:0]flip=0;
+     
+
+    always @(negedge v_sync) begin
+        if (lee_in_range_of_king) begin
+			if (kingkicked && ~leeStillInvincible && p2health >0) begin
+				p2health = p2health - 11'd10;
+				p2healthxpos = p2healthxpos + 11'd10;
+				triggerLeeInvincible = 1;
+			end
+		end else begin
+			triggerLeeInvincible = 0;
+	end
+
+		if (king_in_range_of_lee) begin
+			if (leekicked && ~kingStillInvincible && p1health >0) begin
+				p1health = p1health - 11'd10;
+				triggerKingInvincible = 1;
+			end
+		end else begin
+			triggerKingInvincible = 0;
+	end
+            flip = flip + 1;
+           
+    case (flip)
+    0: begin
+            Address_in = 8'h16;
+            //Vrx = data[15:12];
+
+            //Vry = 4'b0;
+
+            case (data[15:12])
+           
+                  0 : begin
+                      if ((kingx-1<640)&&(kingx-1>0))
+                        kingx=kingx-10;
+                  end
+
+                    14 : begin
+                  if ((kingx+1+200<640)&&(kingx+1>0))
+                        kingx =kingx+10;
+                  end
+                  15 : begin
+                  if ((kingx+1+200<640)&&(kingx+1>0))
+                        kingx =kingx+10;
+                  end
+
+            endcase
+
+      end
+     
+      1: begin
+      Address_in = 8'h1e;
+
+      case (data[15:12])
+     
+            0 : begin
+                  kingkicked = 1; //1
+            end
+
+              14 : begin
+            if ((kingy-1>0)&&(kingy-1<480))
+                  kingy=kingy-10;
+            end
+            15 : begin
+            if ((kingy-1>0)&&(kingy-1<480))
+                  kingy=kingy-10;
+            end
+
+                                    default : begin
+                                    kingkicked=0;
+                                         if (kingy + 1 +200> 0 && kingy + 1 +200< 480)
+                                                kingy = kingy + 10;
+                                               
+                                               
+                                         
+                                               
+                                    end
+      endcase
+      end
+
+   2: begin
+      Address_in = 8'h17;
+      //Vrx = data[15:12];
+      //Vry = 4'b0;
+      case (data[15:12])
+     
+            0 : begin
+            if ((leex-1>0)&&(leex-1<640))
+                  leex = leex-10;
+            end
+            14 : begin
+            if ((leex+1>0)&&(leex+1+200<640))
+                  leex=leex+10;
+            end
+            15 : begin
+            if ((leex+1>0)&&(leex+1+200<640))
+                  leex=leex+10;
+            end
+
+      endcase
+      end
+     
+      3: begin
+      Address_in = 8'h1f;
+      //Vry=data[15:12];
+      //Vrx=4'b0;
+      case (data[15:12])
+     
+            0 : begin
+                  leekicked = 1; //1
+            end
+            14 : begin
+                  if ((leey-1>0)&&(leey-1<480))
+                  leey =leey -10;
+                  end
+            15 : begin
+                  if ((leey-1>0)&&(leey-1<480))
+                  leey =leey -10;
+            end
+
+                                    default : begin
+                                    leekicked=0;
+                                          if (leey + 1+200 > 0 && leey + 1 +200< 480) begin
+                                                leey = leey + 10;
+                                               
+                                                end
+    end
+      endcase
+      end
+  endcase
+ end
+
+
+      //PLAYERS DRAW              
+            reg signed [10:0] kingx = 11'd100;
+            reg signed [10:0] kingy = 11'd100;
+
+            reg signed [10:0] leex = 11'd400;
+            reg signed [10:0] leey = 11'd100;
+     
+     
+
+      wire availkingkickon,availkingneutral;
+      wire availleekick,availleeneutral;
+
+      wire [11:0]kingkickgfx;
+      wire [11:0]leekickgfx;
+      wire [11:0]kingneutralgfx;
+      wire [11:0]leeneutralgfx;
+
+     
+
+      kingneutral_wrapper kingidling(.clk(clk),.sprite_x(kingx),.sprite_y(kingy), .x(hpos),.y(vpos),.rgb(kingneutralgfx),.sprite_on(availkingneutral));
+      leeneutral_wrapper leeidling(.clk(clk),.sprite_x(leex),.sprite_y(leey), .x(hpos),.y(vpos),.rgb(leeneutralgfx),.sprite_on(availleeneutral));
+
+      kingkick_wrapper kingkicking(.clk(clk),.sprite_x(kingx),.sprite_y(kingy), .x(hpos),.y(vpos),.rgb(kingkickgfx),.sprite_on(availkingkick));
+      leekick_wrapper leekicking(.clk(clk),.sprite_x(leex),.sprite_y(leey), .x(hpos),.y(vpos),.rgb(leekickgfx),.sprite_on(availleekick));
+
+      wire [11:0]kingrgbgfx,leergbgfx;
+      wire kinggfx,leegfx;
+
+//used to be just kingkick
+      assign kingrgbgfx = (kingkicked) ? (kingkickgfx) : (kingneutralgfx);
+      assign leergbgfx = (leekicked) ? (leekickgfx) : (leeneutralgfx);
+     
+      assign kinggfx = (kingkicked) ? (availkingkick) : (availkingneutral);
+      assign leegfx = (leekicked) ? (availleekick) : (availleeneutral);
+
+/*
+                  assign kingDoKick = (~kingCantKick) && availkingkick && kingkicked;
+                  assign leeDoKick = (~leeCantKick) && availleekick && leekicked;
+*/    
+ 
+     
+      //GFX
+
+      //TODO: Set game over screen when health goes to 0
+      always @(posedge clk) begin
+            if (video_on == 1 ) begin
+                if (cstate!=1) begin
+                    kinghitflag = 0;
+                    leehitflag = 0;
+                    kingx = 11'd100;
+                    kingy = 11'd100;
+                    leex = 11'd400;
+                    leey = 11'd100;
+                    triggerKingInvincible = 0;
+                    triggerLeeInvincible = 0;
+                    p1health = 11'd300;
+                    p2health = 11'd300;
+                    p1healthxpos = 0;
+                    p1healthypos=0;
+                    p2healthxpos=11'd339;
+                    p2healthypos=0;
+                    c1=0;
+                    c2=0;
+                    kingKickedTrigger = 0;
+                    leeKickedTrigger = 0;
+                    flip=0;
+                    if (cstate==0) begin
+                        rgb<=startgfx;
+                    end 
+                    else if (cstate==2) begin
+                        endflag1<=0;
+                        endflag2<=0;
+                        rgb<=12'b000011110000;
+                    end
+                    else if (cstate==3) begin
+                        endflag1<=0;
+                        endflag2<=0;
+                        rgb<=12'b000000001111;
+                    end
+                end //cstate!=1 ends here
+                else if (cstate==1) begin
+                    if (leehitflag || kinghitflag) begin
+                        rgb <= 12'b000000101010;
+                    end  //hitflags end here
+                    else begin
+                        if (kinggfx && kingrgbgfx != 12'b110001111101)
+                            rgb <= kingrgbgfx;
+                        else if (leegfx && leergbgfx != 12'b110001111101)
+                            rgb <= leergbgfx;
+                        else if (p1healthgfx || p2healthgfx)
+                            rgb <= 12'b000000001111;
+                        else begin
+                            rgb <= 12'b100101010111;
+                        end
+                    end //no hit ends here
+                end //cstate==1 ends here
+            end //video_on==1 ends here
+            else begin
+                    rgb <= 12'b0;
+            end //video_on==0 ends here
+        test<=rgb;
+     end //entire always block ends here
+     
+endmodule
