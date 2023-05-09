@@ -1,0 +1,80 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 05/09/2023 11:35:19 AM
+// Design Name: 
+// Module Name: start_screen
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module start_screen(
+    input [9:0]xloc,
+    input [9:0]yloc,
+    input video_on,
+    output [11:0]rgb
+    );
+wire [3:0] red;
+wire [3:0] green;
+wire [3:0] blue;
+
+assign red = video_on ? ((xloc >= 140 & xloc <= 160 & yloc >= 105 & yloc <= 225)||(xloc >= 140 & xloc <= 200 & yloc >= 155 & yloc <= 175)||(xloc >= 180 & xloc <= 200 & yloc >= 105 & yloc <= 225)//H 
+||(xloc >= 210 & xloc <= 230 & yloc >= 155 & yloc <= 225)||(xloc >= 210 & xloc <= 270 & yloc >= 155 & yloc <= 165)||(xloc >= 210 & xloc <= 270 & yloc >= 180 & yloc <= 190)||(xloc >= 250 & xloc <= 270 & yloc >= 155 & yloc <= 225)//A
+||(xloc >= 280 & xloc <= 300 & yloc >= 155 & yloc <= 225)||(xloc >= 280 & xloc <= 340 & yloc >= 155 & yloc <= 165)||(xloc >= 280 & xloc <= 360 & yloc >= 180 & yloc <= 190)||(xloc >= 280 & xloc <= 360 & yloc >= 215 & yloc <= 225)||(xloc >= 330 & xloc <= 340 & yloc >= 155 & yloc <= 190)||(xloc >= 350 & xloc <= 360 & yloc >= 180 & yloc <= 225)//B
+||(xloc >= 370 & xloc <= 390 & yloc >= 155 & yloc <= 225)// I
+||(xloc >= 400 & xloc <= 420 & yloc >= 155 & yloc <= 225)||(xloc >= 400 & xloc <= 460 & yloc >= 155 & yloc <= 165)||(xloc >= 400 & xloc <= 480 & yloc >= 180 & yloc <= 190)||(xloc >= 400 & xloc <= 480 & yloc >= 215 & yloc <= 225)||(xloc >= 450 & xloc <= 460 & yloc >= 155 & yloc <= 190)||(xloc >= 470 & xloc <= 480 & yloc >= 180 & yloc <= 225)//B
+||(xloc >= 490 & xloc <= 500 & yloc >= 155 & yloc <= 225)//I
+||(xloc >= 70 & xloc <= 90 & yloc >= 255 & yloc <= 325)||(xloc >= 70 & xloc <= 130 & yloc >= 255 & yloc <= 275)||(xloc >= 70 & xloc <= 130 & yloc >= 305 & yloc <= 325)||(xloc >= 110 & xloc <= 130 & yloc >= 305 & yloc <= 375)||(xloc >= 70 & xloc <= 130 & yloc >= 355 & yloc <= 375)//S
+||(xloc >= 140 & xloc <= 160 & yloc >= 305 & yloc <= 375)||(xloc >= 140 & xloc <= 200 & yloc >= 335 & yloc <= 345)||(xloc >= 180 & xloc <= 200 & yloc >= 305 & yloc <= 375)//H
+||(xloc >= 210 & xloc <= 230 & yloc >= 305 & yloc <= 375)||(xloc >= 210 & xloc <= 270 & yloc >= 305 & yloc <= 325)||(xloc >= 250 & xloc <= 270 & yloc >= 305 & yloc <= 375)||(xloc >= 210 & xloc <= 270 & yloc >= 355 & yloc <= 375)//O
+||(xloc >= 280 & xloc <= 300 & yloc >= 305 & yloc <= 375)||(xloc >= 280 & xloc <= 340 & yloc >= 355 & yloc <= 375)||(xloc >= 305 & xloc <= 315 & yloc >= 330 & yloc <= 375)||(xloc >= 320 & xloc <= 340 & yloc >= 305 & yloc <= 375)//W
+||(xloc >= 350 & xloc <= 370 & yloc >= 305 & yloc <= 375)||(xloc >= 380 & xloc <= 390 & yloc >= 315 & yloc <= 325)||(xloc >= 380 & xloc <= 390 & yloc >= 355 & yloc <= 365)||(xloc >= 390 & xloc <= 400 & yloc >= 325 & yloc <= 335)||(xloc >= 390 & xloc <= 400 & yloc >= 345 & yloc <= 355)||(xloc >= 400 & xloc <= 410 & yloc >= 335 & yloc <= 345)//D
+||(xloc >= 420 & xloc <= 440 & yloc >= 305 & yloc <= 375)||(xloc >= 440 & xloc <= 500 & yloc >= 305 & yloc <= 325)||(xloc >= 480 & xloc <= 500 & yloc >= 305 & yloc <= 375)||(xloc >= 440 & xloc <= 500 & yloc >= 355 & yloc <= 375)//O
+||(xloc >= 510 & xloc <= 520 & yloc >= 305 & yloc <= 375)||(xloc >= 510 & xloc <= 570 & yloc >= 355 & yloc <= 375)||(xloc >= 535 & xloc <= 545 & yloc >= 330 & yloc <= 375)||(xloc >= 550 & xloc <= 570 & yloc >= 305 & yloc <= 375)//W
+||(xloc >= 580 & xloc <= 590 & yloc >= 305 & yloc <= 375)||(xloc >= 580 & xloc <= 600 & yloc >= 305 & yloc <= 315)||(xloc >= 600 & xloc <= 610 & yloc >= 305 & yloc <= 375)||(xloc >= 610 & xloc <= 620 & yloc >= 365 & yloc <= 375)||(xloc >= 620 & xloc <= 630 & yloc >= 305 & yloc <= 375) ? 4'hF:4'h0):(4'h0);
+
+assign green = video_on ? ((xloc >= 140 & xloc <= 160 & yloc >= 105 & yloc <= 225)||(xloc >= 140 & xloc <= 200 & yloc >= 155 & yloc <= 175)||(xloc >= 180 & xloc <= 200 & yloc >= 105 & yloc <= 225)//H 
+||(xloc >= 210 & xloc <= 230 & yloc >= 155 & yloc <= 225)||(xloc >= 210 & xloc <= 270 & yloc >= 155 & yloc <= 165)||(xloc >= 210 & xloc <= 270 & yloc >= 180 & yloc <= 190)||(xloc >= 250 & xloc <= 270 & yloc >= 155 & yloc <= 225)//A
+||(xloc >= 280 & xloc <= 300 & yloc >= 155 & yloc <= 225)||(xloc >= 280 & xloc <= 340 & yloc >= 155 & yloc <= 165)||(xloc >= 280 & xloc <= 360 & yloc >= 180 & yloc <= 190)||(xloc >= 280 & xloc <= 360 & yloc >= 215 & yloc <= 225)||(xloc >= 330 & xloc <= 340 & yloc >= 155 & yloc <= 190)||(xloc >= 350 & xloc <= 360 & yloc >= 180 & yloc <= 225)//B
+||(xloc >= 370 & xloc <= 390 & yloc >= 155 & yloc <= 225)// I
+||(xloc >= 400 & xloc <= 420 & yloc >= 155 & yloc <= 225)||(xloc >= 400 & xloc <= 460 & yloc >= 155 & yloc <= 165)||(xloc >= 400 & xloc <= 480 & yloc >= 180 & yloc <= 190)||(xloc >= 400 & xloc <= 480 & yloc >= 215 & yloc <= 225)||(xloc >= 450 & xloc <= 460 & yloc >= 155 & yloc <= 190)||(xloc >= 470 & xloc <= 480 & yloc >= 180 & yloc <= 225)//B
+||(xloc >= 490 & xloc <= 500 & yloc >= 155 & yloc <= 225)//I
+||(xloc >= 70 & xloc <= 90 & yloc >= 255 & yloc <= 325)||(xloc >= 70 & xloc <= 130 & yloc >= 255 & yloc <= 275)||(xloc >= 70 & xloc <= 130 & yloc >= 305 & yloc <= 325)||(xloc >= 110 & xloc <= 130 & yloc >= 305 & yloc <= 375)||(xloc >= 70 & xloc <= 130 & yloc >= 355 & yloc <= 375)//S
+||(xloc >= 140 & xloc <= 160 & yloc >= 305 & yloc <= 375)||(xloc >= 140 & xloc <= 200 & yloc >= 335 & yloc <= 345)||(xloc >= 180 & xloc <= 200 & yloc >= 305 & yloc <= 375)//H
+||(xloc >= 210 & xloc <= 230 & yloc >= 305 & yloc <= 375)||(xloc >= 210 & xloc <= 270 & yloc >= 305 & yloc <= 325)||(xloc >= 250 & xloc <= 270 & yloc >= 305 & yloc <= 375)||(xloc >= 210 & xloc <= 270 & yloc >= 355 & yloc <= 375)//O
+||(xloc >= 280 & xloc <= 300 & yloc >= 305 & yloc <= 375)||(xloc >= 280 & xloc <= 340 & yloc >= 355 & yloc <= 375)||(xloc >= 305 & xloc <= 315 & yloc >= 330 & yloc <= 375)||(xloc >= 320 & xloc <= 340 & yloc >= 305 & yloc <= 375)//W
+||(xloc >= 350 & xloc <= 370 & yloc >= 305 & yloc <= 375)||(xloc >= 380 & xloc <= 390 & yloc >= 315 & yloc <= 325)||(xloc >= 380 & xloc <= 390 & yloc >= 355 & yloc <= 365)||(xloc >= 390 & xloc <= 400 & yloc >= 325 & yloc <= 335)||(xloc >= 390 & xloc <= 400 & yloc >= 345 & yloc <= 355)||(xloc >= 400 & xloc <= 410 & yloc >= 335 & yloc <= 345)//D
+||(xloc >= 420 & xloc <= 440 & yloc >= 305 & yloc <= 375)||(xloc >= 440 & xloc <= 500 & yloc >= 305 & yloc <= 325)||(xloc >= 480 & xloc <= 500 & yloc >= 305 & yloc <= 375)||(xloc >= 440 & xloc <= 500 & yloc >= 355 & yloc <= 375)//O
+||(xloc >= 510 & xloc <= 520 & yloc >= 305 & yloc <= 375)||(xloc >= 510 & xloc <= 570 & yloc >= 355 & yloc <= 375)||(xloc >= 535 & xloc <= 545 & yloc >= 330 & yloc <= 375)||(xloc >= 550 & xloc <= 570 & yloc >= 305 & yloc <= 375)//W
+||(xloc >= 580 & xloc <= 590 & yloc >= 305 & yloc <= 375)||(xloc >= 580 & xloc <= 600 & yloc >= 305 & yloc <= 315)||(xloc >= 600 & xloc <= 610 & yloc >= 305 & yloc <= 375)||(xloc >= 610 & xloc <= 620 & yloc >= 365 & yloc <= 375)||(xloc >= 620 & xloc <= 630 & yloc >= 305 & yloc <= 375) ? 4'hF:4'h0):(4'h0);
+
+
+assign blue = video_on ? ((xloc >= 140 & xloc <= 160 & yloc >= 105 & yloc <= 225)||(xloc >= 140 & xloc <= 200 & yloc >= 155 & yloc <= 175)||(xloc >= 180 & xloc <= 200 & yloc >= 105 & yloc <= 225)//H 
+||(xloc >= 210 & xloc <= 230 & yloc >= 155 & yloc <= 225)||(xloc >= 210 & xloc <= 270 & yloc >= 155 & yloc <= 165)||(xloc >= 210 & xloc <= 270 & yloc >= 180 & yloc <= 190)||(xloc >= 250 & xloc <= 270 & yloc >= 155 & yloc <= 225)//A
+||(xloc >= 280 & xloc <= 300 & yloc >= 155 & yloc <= 225)||(xloc >= 280 & xloc <= 340 & yloc >= 155 & yloc <= 165)||(xloc >= 280 & xloc <= 360 & yloc >= 180 & yloc <= 190)||(xloc >= 280 & xloc <= 360 & yloc >= 215 & yloc <= 225)||(xloc >= 330 & xloc <= 340 & yloc >= 155 & yloc <= 190)||(xloc >= 350 & xloc <= 360 & yloc >= 180 & yloc <= 225)//B
+||(xloc >= 370 & xloc <= 390 & yloc >= 155 & yloc <= 225)// I
+||(xloc >= 400 & xloc <= 420 & yloc >= 155 & yloc <= 225)||(xloc >= 400 & xloc <= 460 & yloc >= 155 & yloc <= 165)||(xloc >= 400 & xloc <= 480 & yloc >= 180 & yloc <= 190)||(xloc >= 400 & xloc <= 480 & yloc >= 215 & yloc <= 225)||(xloc >= 450 & xloc <= 460 & yloc >= 155 & yloc <= 190)||(xloc >= 470 & xloc <= 480 & yloc >= 180 & yloc <= 225)//B
+||(xloc >= 490 & xloc <= 500 & yloc >= 155 & yloc <= 225)//I
+||(xloc >= 70 & xloc <= 90 & yloc >= 255 & yloc <= 325)||(xloc >= 70 & xloc <= 130 & yloc >= 255 & yloc <= 275)||(xloc >= 70 & xloc <= 130 & yloc >= 305 & yloc <= 325)||(xloc >= 110 & xloc <= 130 & yloc >= 305 & yloc <= 375)||(xloc >= 70 & xloc <= 130 & yloc >= 355 & yloc <= 375)//S
+||(xloc >= 140 & xloc <= 160 & yloc >= 305 & yloc <= 375)||(xloc >= 140 & xloc <= 200 & yloc >= 335 & yloc <= 345)||(xloc >= 180 & xloc <= 200 & yloc >= 305 & yloc <= 375)//H
+||(xloc >= 210 & xloc <= 230 & yloc >= 305 & yloc <= 375)||(xloc >= 210 & xloc <= 270 & yloc >= 305 & yloc <= 325)||(xloc >= 250 & xloc <= 270 & yloc >= 305 & yloc <= 375)||(xloc >= 210 & xloc <= 270 & yloc >= 355 & yloc <= 375)//O
+||(xloc >= 280 & xloc <= 300 & yloc >= 305 & yloc <= 375)||(xloc >= 280 & xloc <= 340 & yloc >= 355 & yloc <= 375)||(xloc >= 305 & xloc <= 315 & yloc >= 330 & yloc <= 375)||(xloc >= 320 & xloc <= 340 & yloc >= 305 & yloc <= 375)//W
+||(xloc >= 350 & xloc <= 370 & yloc >= 305 & yloc <= 375)||(xloc >= 380 & xloc <= 390 & yloc >= 315 & yloc <= 325)||(xloc >= 380 & xloc <= 390 & yloc >= 355 & yloc <= 365)||(xloc >= 390 & xloc <= 400 & yloc >= 325 & yloc <= 335)||(xloc >= 390 & xloc <= 400 & yloc >= 345 & yloc <= 355)||(xloc >= 400 & xloc <= 410 & yloc >= 335 & yloc <= 345)//D
+||(xloc >= 420 & xloc <= 440 & yloc >= 305 & yloc <= 375)||(xloc >= 440 & xloc <= 500 & yloc >= 305 & yloc <= 325)||(xloc >= 480 & xloc <= 500 & yloc >= 305 & yloc <= 375)||(xloc >= 440 & xloc <= 500 & yloc >= 355 & yloc <= 375)//O
+||(xloc >= 510 & xloc <= 520 & yloc >= 305 & yloc <= 375)||(xloc >= 510 & xloc <= 570 & yloc >= 355 & yloc <= 375)||(xloc >= 535 & xloc <= 545 & yloc >= 330 & yloc <= 375)||(xloc >= 550 & xloc <= 570 & yloc >= 305 & yloc <= 375)//W
+||(xloc >= 580 & xloc <= 590 & yloc >= 305 & yloc <= 375)||(xloc >= 580 & xloc <= 600 & yloc >= 305 & yloc <= 315)||(xloc >= 600 & xloc <= 610 & yloc >= 305 & yloc <= 375)||(xloc >= 610 & xloc <= 620 & yloc >= 365 & yloc <= 375)||(xloc >= 620 & xloc <= 630 & yloc >= 305 & yloc <= 375) ? 4'hF:4'h0):(4'h0);
+
+assign rgb = {red,green,blue};
+endmodule
