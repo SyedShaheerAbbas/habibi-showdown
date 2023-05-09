@@ -1,0 +1,24 @@
+`timescale 1ns / 1ps
+
+module triggeredCounter
+	#(parameter MAX_COUNT = 32'd100000000)
+	(input clk,
+	input trig,
+	output reg in_progress = 0);
+
+	reg [31:0]count = 0;
+
+	always @(posedge clk) begin 
+		if ((trig) || (count != 0)) begin
+			count = count + 1;
+			in_progress = 1;
+		end
+
+		if (count == MAX_COUNT) begin
+			count = 0;
+			in_progress = 0;
+		end
+
+	end 
+
+endmodule
