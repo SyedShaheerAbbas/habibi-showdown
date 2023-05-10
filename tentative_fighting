@@ -136,11 +136,15 @@ wire leeKickedLong;
 	assign king_in_range_of_lee = (leex - kingx <= 158 && leex - kingx >= 0) && (leey - kingy <= 104 && leey - kingy >= 0);
 
 	always @(posedge clk) begin 
+	if (cstate==1) begin
 		if (lee_in_range_of_king) begin
 			if (kingkicked && ~leeStillInvincible && p2health >0) begin
 				p2health = p2health - 11'd25;
 				p2healthxpos = p2healthxpos + 11'd25;
 				triggerLeeInvincible = 1;
+				if (p2health<1) begin
+				    endflag1<=1;
+				end
 			end
 		end else begin
 			triggerLeeInvincible = 0;
@@ -150,9 +154,13 @@ wire leeKickedLong;
 			if (leekicked && ~kingStillInvincible && p1health >0) begin
 				p1health = p1health - 11'd25;
 				triggerKingInvincible = 1;
+				if (p1health<1) begin
+				    endflag2<=1;
+				end
 			end
 		end else begin
 			triggerKingInvincible = 0;
+	end
 	end
 	end
 
