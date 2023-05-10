@@ -1,5 +1,4 @@
 
-
 `timescale 1ns / 1ps
 
 module fighting(
@@ -16,7 +15,9 @@ input [1:0] cstate,
             output h_sync,
             output v_sync,
             output reg [11:0]rgb,
-            output reg [11:0]test);
+            output reg [11:0]test,
+            output reg endflag1,
+            output reg endflag2);
   wire video_on;
 
             wire [9:0] hpos;
@@ -124,37 +125,41 @@ wire leeKickedLong;
 	reg [3:0] last_leex;
 	reg [3:0] last_leey;  
 
+	wire kingStillInvincible, leeStillInvincible;
+
+	triggeredCounter  kingInvincibility(.trig(triggerKingInvincible),.clk(clk),.in_progress(kingStillInvincible));
+	triggeredCounter  leeInvincibility(.trig(triggerLeeInvincible),.clk(clk),.in_progress(leeStillInvincible));
+
+	wire in_range;
+
+	assign lee_in_range_of_king = (kingx - leex <= 146 && kingx - leex >= 0) && (kingy - leey <= 140 && kingy - leey >= 0);
+	assign king_in_range_of_lee = (leex - kingx <= 158 && leex - kingx >= 0) && (leey - kingy <= 104 && leey - kingy >= 0);
+
+	always @(posedge clk) begin 
+		if (lee_in_range_of_king) begin
+			if (kingkicked && ~leeStillInvincible && p2health >0) begin
+				p2health = p2health - 11'd25;
+				p2healthxpos = p2healthxpos + 11'd25;
+				triggerLeeInvincible = 1;
+			end
+		end else begin
+			triggerLeeInvincible = 0;
+	end
+
+		if (king_in_range_of_lee) begin
+			if (leekicked && ~kingStillInvincible && p1health >0) begin
+				p1health = p1health - 11'd25;
+				triggerKingInvincible = 1;
+			end
+		end else begin
+			triggerKingInvincible = 0;
+	end
+	end
+
     always @(negedge v_sync) begin
         if (cstate==1) begin
-         c1=c1+1;
-         c2=c2+1;
-        if ((kinghit==1)&&(p1health > 0)&&((p1health!=300)||(p1health!=200)||(p1health!=100))) begin
-                              p1health <= p1health - 11'd90;
-                              c1=0;
-                        end else if (p1health <= 0) begin
-                              endflag <= 1;
-            end
-        if ((leehit==1)&&(p2health > 0 && p2healthxpos < 639)&&((p2health!=300)||(p2health!=200)||(p2health!=100))) begin
-                              p2health <= p2health - 11'd90;
-                              p2healthxpos <= p2healthxpos + 11'd90;
-                              c2=0;
-                        end else if (p2health <= 0 || p2healthxpos >= 639) begin
-                              endflag <= 1;
-            end
-        if ((c1==1000) && ((p1health==300)||(p1health==200)||(p1health==100))) begin
-            p1health <= p1health - 11'd10;
-            c1=0;
-            end
-        if ((c2==1000 && p2healthxpos < 639) && ((p2health==300)||(p2health==200)||(p2health==100))) begin
-            p2health <= p2health - 11'd10;
-            p2healthxpos <= p2healthxpos + 11'd10;
-            c2=0;
-            end
             flip = flip + 1;
-           
-	
-
-
+      
     case (flip)
     0: begin
             Address_in = 8'h16;
@@ -166,42 +171,42 @@ wire leeKickedLong;
            
                   0 : begin
 
-			if (cooldown1 == 0) begin
-					if (last_kingx != 0) begin
-							last_kingx <= 0;
-							cooldown1 <= 4000000;
-					end else if ((kingx-1<640)&&(kingx-1>0)) begin
-						kingx=kingx-10;
-				end
-			end else begin
-					cooldown1 <= cooldown1 - 1;
-			end
+										if (cooldown1 == 0) begin
+												if (last_kingx != 0) begin
+														last_kingx <= 0;
+														cooldown1 <= 4000000;
+												end else if ((kingx-1<640)&&(kingx-1>0)) begin
+													kingx=kingx-10;
+											end
+										end else begin
+												cooldown1 <= cooldown1 - 1;
+										end
                   end
 
                     14 : begin
-			if (cooldown1 == 0) begin
-					if ((last_kingx != 14 )||(last_kingx!= 15)) begin
-							last_kingx <= 15;
-							cooldown1 <= 4000000;
-					end else if ((kingx+1+200<640)&&(kingx+1>0)) begin
-				kingx =kingx+10;
-				end
-			end else begin
-					cooldown1 <= cooldown1 - 1;
-			end
+										if (cooldown1 == 0) begin
+												if ((last_kingx != 14 )||(last_kingx!= 15)) begin
+														last_kingx <= 15;
+														cooldown1 <= 4000000;
+												end else if ((kingx+1+200<640)&&(kingx+1>0)) begin
+                        kingx =kingx+10;
+											end
+										end else begin
+												cooldown1 <= cooldown1 - 1;
+										end
                   end
                   
                   15 : begin
-			if (cooldown1 == 0) begin
-					if ((last_kingx != 14 )||(last_kingx!= 15)) begin
-							last_kingx <= 15;
-							cooldown1 <= 4000000;
-					end else if ((kingx+1+200<640)&&(kingx+1>0)) begin
-				kingx =kingx+10;
-				end
-			end else begin
-					cooldown1 <= cooldown1 - 1;
-			end
+										if (cooldown1 == 0) begin
+												if ((last_kingx != 14 )||(last_kingx!= 15)) begin
+														last_kingx <= 15;
+														cooldown1 <= 4000000;
+												end else if ((kingx+1+200<640)&&(kingx+1>0)) begin
+                        kingx =kingx+10;
+											end
+										end else begin
+												cooldown1 <= cooldown1 - 1;
+										end
                   end
 
             endcase
